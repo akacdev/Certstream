@@ -1,4 +1,4 @@
-# Urlscan
+# Certstream
 
 ![](https://raw.githubusercontent.com/actually-akac/Certstream/master/Certstream/icon.png)
 
