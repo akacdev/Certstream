@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <PackageId>Certstream</PackageId>
-    <Version>1.0.0</Version>
+    <Version>1.0.1</Version>
     <Authors>akac</Authors>
     <Company>akac</Company>
     <Product>Certstream</Product>
@@ -16,8 +16,8 @@
     <RepositoryType>git</RepositoryType>
     <PackageTags>certstream; cert-stream; phishing; security; ssl; tls; certificate; letsencrypt; cloudflare; digicert; verisign</PackageTags>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <AssemblyVersion>1.0.0</AssemblyVersion>
-    <FileVersion>1.0.0</FileVersion>
+    <AssemblyVersion>1.0.1</AssemblyVersion>
+    <FileVersion>1.0.1</FileVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
