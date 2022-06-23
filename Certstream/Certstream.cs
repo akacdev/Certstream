@@ -9,12 +9,30 @@ using Timer = System.Timers.Timer;
 
 namespace Certstream
 {
+    /// <summary>
+    /// The main class to connect to the Certstream server.
+    /// </summary>
     public class CertstreamClient
     {
+        /// <summary>
+        /// The WebSocket URL to connect to.
+        /// </summary>
         public const string URL = "wss://certstream.calidog.io";
+        /// <summary>
+        /// The UserAgent to use when connecting.
+        /// </summary>
         public const string UserAgent = "C# Certstream Client - https://github.com/actually-akac/Certstream";
+        /// <summary>
+        /// How often should the WebSocket be pinged, in <b>milliseconds.</b>
+        /// </summary>
         public const int PingInterval = 5000;
+        /// <summary>
+        /// The delay between reconnecting to a closed WebSocket connection, in <b>milliseconds.</b>
+        /// </summary>
         public const int ReconnectionDelay = 1000;
+        /// <summary>
+        /// The maximum limit of consecutive reconnection fails until an exception is thrown.
+        /// </summary>
         private const int MaxRetries = 10;
 
         private ClientWebSocket WS;
@@ -25,6 +43,9 @@ namespace Certstream
         private readonly ArraySegment<byte> PingBytes = new(Encoding.UTF8.GetBytes("ping"));
 
         private EventHandler<LeafCert> Handler;
+        /// <summary>
+        /// Fired whenever a new SSL certificate is issued and received in the WebSocket.
+        /// </summary>
         public event EventHandler<LeafCert> CertificateIssued
         {
             add
@@ -44,6 +65,9 @@ namespace Certstream
             
         }
 
+        /// <summary>
+        /// Forcibly start collecting certificates.
+        /// </summary>
         public async void Start()
         {
             Running = true;
@@ -51,12 +75,18 @@ namespace Certstream
             await Task.CompletedTask;
         }
 
+        /// <summary>
+        /// Forcibly stop collecting certificates.
+        /// </summary>
         public async void Stop()
         {
             Running = false;
             await WS.CloseAsync(WebSocketCloseStatus.NormalClosure, "User demands a WebSocket closure.", Source.Token);
         }
 
+        /// <summary>
+        /// The main method that connects to the WebSocket and listens for new messages.
+        /// </summary>
         public async void Connect()
         {
             if (!Running) return;
@@ -116,6 +146,10 @@ namespace Certstream
             Connect();
         }
 
+        /// <summary>
+        /// The method that sends a <c>ping</c> message into the WebSocket to prevent it from closing.
+        /// </summary>
+        /// <returns></returns>
         public async Task Ping()
         {
             if (WS.State != WebSocketState.Open) Pinger.Stop();
@@ -128,6 +162,11 @@ namespace Certstream
             catch { };
         }
 
+        /// <summary>
+        /// Called whenever a WebSocket message is received.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="msg"></param>
         public void OnMessage(object sender, string msg)
         {
             CertMessage certMsg;

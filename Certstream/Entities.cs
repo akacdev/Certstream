@@ -2,7 +2,9 @@
 
 namespace Certstream
 {
-
+    /// <summary>
+    /// The root object that is received in WebSocket messages.
+    /// </summary>
     public struct CertMessage
     {
         [JsonPropertyName("data")]
@@ -71,21 +73,39 @@ namespace Certstream
 
     public struct Issuer
     {
+        /// <summary>
+        /// X.509 Certficate attribute: CountryName
+        /// </summary>
         [JsonPropertyName("C")]
         public string C { get; set; }
 
+        /// <summary>
+        /// X.509 Certficate attribute: CommonName
+        /// </summary>
         [JsonPropertyName("CN")]
         public string CN { get; set; }
 
+        /// <summary>
+        /// X.509 Certficate attribute: Locality
+        /// </summary>
         [JsonPropertyName("L")]
         public string L { get; set; }
 
+        /// <summary>
+        /// X.509 Certficate attribute: Organization
+        /// </summary>
         [JsonPropertyName("O")]
         public string O { get; set; }
 
+        /// <summary>
+        /// X.509 Certficate attribute: OrganizationalUnit
+        /// </summary>
         [JsonPropertyName("OU")]
         public object OU { get; set; }
 
+        /// <summary>
+        /// X.509 Certficate attribute: StateOrProvinceName
+        /// </summary>
         [JsonPropertyName("ST")]
         public string ST { get; set; }
 
@@ -137,23 +157,41 @@ namespace Certstream
 
     public struct Subject
     {
+        /// <summary>
+        /// X.509 Certficate attribute: CountryName
+        /// </summary>
         [JsonPropertyName("C")]
-        public object C { get; set; }
+        public string C { get; set; }
 
+        /// <summary>
+        /// X.509 Certficate attribute: CommonName
+        /// </summary>
         [JsonPropertyName("CN")]
         public string CN { get; set; }
 
+        /// <summary>
+        /// X.509 Certficate attribute: Locality
+        /// </summary>
         [JsonPropertyName("L")]
-        public object L { get; set; }
+        public string L { get; set; }
 
+        /// <summary>
+        /// X.509 Certficate attribute: Organization
+        /// </summary>
         [JsonPropertyName("O")]
-        public object O { get; set; }
+        public string O { get; set; }
 
+        /// <summary>
+        /// X.509 Certficate attribute: OrganizationalUnit
+        /// </summary>
         [JsonPropertyName("OU")]
         public object OU { get; set; }
 
+        /// <summary>
+        /// X.509 Certficate attribute: StateOrProvinceName
+        /// </summary>
         [JsonPropertyName("ST")]
-        public object ST { get; set; }
+        public string ST { get; set; }
 
         [JsonPropertyName("aggregated")]
         public string Aggregated { get; set; }
