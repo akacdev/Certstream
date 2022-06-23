@@ -23,9 +23,11 @@ https://www.nuget.org/packages/Certstream
 - EventHandler\<LeafCertificate> `CertificateIssued`
 
 ## Official Links
-https://certstream.calidog.io/</br>
-https://github.com/CaliDog/certstream-server</br>
-https://certificate.transparency.dev/</br>
+https://certstream.calidog.io/
+
+https://github.com/CaliDog/certstream-server
+
+https://certificate.transparency.dev/
 
 ## Example
 Under the `Example` folder you can find a demo application that works with the library.
