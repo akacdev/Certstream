@@ -33,7 +33,7 @@ namespace Certstream
         /// <summary>
         /// The maximum limit of consecutive reconnection fails until an exception is thrown.
         /// </summary>
-        private const int MaxRetries = 10;
+        private readonly int MaxRetries;
 
         private ClientWebSocket WS;
         private CancellationTokenSource Source;
@@ -60,9 +60,8 @@ namespace Certstream
             }
         }
 
-        public CertstreamClient()
-        {
-            
+        public CertstreamClient(int maxRetries=10) {
+            MaxRetries = maxRetries;
         }
 
         /// <summary>
@@ -112,7 +111,7 @@ namespace Certstream
             {
                 Debug.WriteLine($"Failed to connect to WebSocket: {ex.Message}");
 
-                if (Retries >= MaxRetries) throw new($"Failed to connect to Certstream {Retries} times.");
+                if (MaxRetries >= 0 && Retries >= MaxRetries) throw new($"Failed to connect to Certstream {Retries} times.");
 
                 await Task.Delay(ReconnectionDelay);
                 Connect();
