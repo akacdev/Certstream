@@ -112,7 +112,7 @@ namespace Certstream
             {
                 Debug.WriteLine($"Failed to connect to WebSocket: {ex.Message}");
 
-                if (Retries <= MaxRetries) throw new($"Failed to connect to Certstream {Retries} times.");
+                if (Retries >= MaxRetries) throw new($"Failed to connect to Certstream {Retries} times.");
 
                 await Task.Delay(ReconnectionDelay);
                 Connect();
