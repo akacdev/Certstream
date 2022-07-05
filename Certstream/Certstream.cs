@@ -60,7 +60,12 @@ namespace Certstream
             }
         }
 
-        public CertstreamClient(int maxRetries=10) {
+        /// <summary>
+        /// The main class for receiving issued certificates.
+        /// </summary>
+        /// <param name="maxRetries">The maximum limit of consecutive reconnection fails until an exception is thrown.<para>Set to a negative value for no limit.</para></param>
+        public CertstreamClient(int maxRetries = 10)
+        {
             MaxRetries = maxRetries;
         }
 
