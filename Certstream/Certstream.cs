@@ -89,6 +89,7 @@ namespace Certstream
         public async void Stop()
         {
             Running = false;
+            Pinger.Stop();
             await WS.CloseAsync(WebSocketCloseStatus.NormalClosure, "User demands a WebSocket closure.", Source.Token);
         }
 
