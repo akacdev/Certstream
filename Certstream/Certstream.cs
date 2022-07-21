@@ -76,10 +76,15 @@ namespace Certstream
         {
             Running = true;
             Connect();
-            Pinger = new();
-            Pinger.Interval = PingInterval;
+
+            Pinger = new()
+            {
+                Interval = PingInterval
+            };
+
             Pinger.Elapsed += async (o, e) => await Ping();
             Pinger.Start();
+
             await Task.CompletedTask;
         }
 
@@ -90,6 +95,7 @@ namespace Certstream
         {
             Running = false;
             Pinger.Stop();
+
             await WS.CloseAsync(WebSocketCloseStatus.NormalClosure, "User demands a WebSocket closure.", Source.Token);
         }
 
@@ -154,7 +160,8 @@ namespace Certstream
         /// The method that sends a <c>ping</c> message into the WebSocket to prevent it from closing.
         /// </summary>
         /// <returns></returns>
-        public async Task Ping() {
+        public async Task Ping()
+        {
             if (WS.State != WebSocketState.Open) return;
 
             try
