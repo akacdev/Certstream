@@ -9,30 +9,34 @@
 </div>
 
 ## Usage
-This library can be downloaded as the package `Certstream`. The main class is `CertstreamClient`. 
+Provides an easy interface for interacting with the Certstream API. This allows you to process newly issued SSL certificaes in real time.
 
-https://www.nuget.org/packages/Certstream
+To get started, add the library into your solution with either the `NuGet Package Manager` or the `dotnet` CLI.
+```rust
+dotnet add package Certstream
+```
+
+For the primary classes to become available, import the used namespace.
+```csharp
+using Certstream;
+```
+
+Need more examples? Under the `Example` directory you can find a working demo project that implements this library.
 
 ## Features
+- Built for **.NET 6** and **.NET 7**
+- Fully **async**
+- Extensive **XML documentation**
 - Connect to the Certstream server and receive certificates in real time
 - Parse and process over 200 issued certificates per second
-- Automatic reconnects
+- Automatically reconnect when connection is lost
 - Updates exposed through events
 
-## Available methods
-- void `Start`()
-- void `Stop`()
+## References
+- https://certstream.calidog.io/
+- https://github.com/CaliDog/certstream-server
+- https://certificate.transparency.dev/
 
-## Available events
-- EventHandler\<LeafCertificate> `CertificateIssued`
-
-## Official Links
-https://certstream.calidog.io/</br>
-https://github.com/CaliDog/certstream-server</br>
-https://certificate.transparency.dev/</br>
-
-## Example
-Under the `Example` folder you can find a demo application that works with the library.
 ```
 Google Trust Services LLC issued a SSL certificate for bestbuiltcon.biz
 cPanel, Inc. issued a SSL certificate for shreeramns.com

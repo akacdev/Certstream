@@ -7,9 +7,9 @@ namespace Example
     {
         public static void Main()
         {
-            CertstreamClient client = new();
+            CertstreamClient certstream = new(ConnectionType.Full);
 
-            client.CertificateIssued += (sender, cert) =>
+            certstream.CertificateIssued += (sender, cert) =>
             {
                 foreach (string domain in cert.AllDomains)
                 {

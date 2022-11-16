@@ -2,10 +2,34 @@
 
 namespace Certstream
 {
+    public enum ConnectionType
+    {
+        /// <summary>
+        /// The default full connection type receives certificates with all information.
+        /// </summary>
+        Full,
+        /// <summary>
+        /// The domains-only mode only receives raw hostnames, resulting in saved bandwidth.
+        /// </summary>
+        DomainsOnly
+    }
+
     /// <summary>
-    /// The root object that is received in WebSocket messages.
+    /// Primary object received in domains-only messages from Certstream.
     /// </summary>
-    public struct CertMessage
+    public struct DomainsOnlyMessage
+    {
+        [JsonPropertyName("data")]
+        public string[] Hostnames { get; set; }
+
+        [JsonPropertyName("message_type")]
+        public string MessageType { get; set; }
+    }
+
+    /// <summary>
+    /// Primary object recived in default messages from Certstream.
+    /// </summary>
+    public struct CertificateMessage
     {
         [JsonPropertyName("data")]
         public MessageData Data { get; set; }
@@ -23,7 +47,7 @@ namespace Certstream
         public string CertLink { get; set; }
 
         [JsonPropertyName("leaf_cert")]
-        public LeafCert LeafCert { get; set; }
+        public LeafCertificate Leaf { get; set; }
 
         [JsonPropertyName("seen")]
         public double Seen { get; set; }
@@ -101,7 +125,7 @@ namespace Certstream
         /// X.509 Certficate attribute: OrganizationalUnit
         /// </summary>
         [JsonPropertyName("OU")]
-        public object OU { get; set; }
+        public string OU { get; set; }
 
         /// <summary>
         /// X.509 Certficate attribute: StateOrProvinceName
@@ -113,10 +137,10 @@ namespace Certstream
         public string Aggregated { get; set; }
 
         [JsonPropertyName("emailAddress")]
-        public object EmailAddress { get; set; }
+        public string EmailAddress { get; set; }
     }
 
-    public struct LeafCert
+    public struct LeafCertificate
     {
         [JsonPropertyName("all_domains")]
         public string[] AllDomains { get; set; }
@@ -185,7 +209,7 @@ namespace Certstream
         /// X.509 Certficate attribute: OrganizationalUnit
         /// </summary>
         [JsonPropertyName("OU")]
-        public object OU { get; set; }
+        public string OU { get; set; }
 
         /// <summary>
         /// X.509 Certficate attribute: StateOrProvinceName
@@ -197,6 +221,6 @@ namespace Certstream
         public string Aggregated { get; set; }
 
         [JsonPropertyName("emailAddress")]
-        public object EmailAddress { get; set; }
+        public string EmailAddress { get; set; }
     }
 }
