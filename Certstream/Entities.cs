@@ -9,13 +9,13 @@ namespace Certstream
         /// </summary>
         Full,
         /// <summary>
-        /// The domains-only mode only receives raw hostnames, resulting in saved bandwidth.
+        /// The domains-only mode only receives raw hostnames, resulting in less bandwidth used.
         /// </summary>
         DomainsOnly
     }
 
     /// <summary>
-    /// Primary object received in domains-only messages from Certstream.
+    /// Primary object received in <see cref="ConnectionType.DomainsOnly"/> messages from Certstream.
     /// </summary>
     public struct DomainsOnlyMessage
     {
@@ -27,7 +27,7 @@ namespace Certstream
     }
 
     /// <summary>
-    /// Primary object recived in default messages from Certstream.
+    /// Primary object recived in <see cref="ConnectionType.Full"/> messages from Certstream.
     /// </summary>
     public struct CertificateMessage
     {

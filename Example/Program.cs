@@ -5,11 +5,11 @@ namespace Example
 {
     public static class Program
     {
+        public static readonly CertstreamClient Client = new(ConnectionType.Full);
+
         public static void Main()
         {
-            CertstreamClient certstream = new(ConnectionType.Full);
-
-            certstream.CertificateIssued += (sender, cert) =>
+            Client.CertificateIssued += (sender, cert) =>
             {
                 foreach (string domain in cert.AllDomains)
                 {

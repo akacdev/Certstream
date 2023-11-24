@@ -2,12 +2,15 @@
 
 ![](https://raw.githubusercontent.com/actually-akac/Certstream/master/Certstream/icon.png)
 
-A C# library for processing newly issued SSL certificates in real time using the Certstream API. 
+A C# library for processing newly issued SSL certificates in real time using the Certstream API.
 
 ## Usage
-Provides an easy interface for interacting with the Certstream API. This allows you to process newly issued SSL certificaes in real time.
+This library provides an easy interface for interacting with the Certstream API, allowing you to process newly issued SSL/TLS certificates in real time.
 
-To get started, add the library into your solution with either the `NuGet Package Manager` or the `dotnet` CLI.
+You can either listen for all spotted certificates with all details available or save on bandwidth by only requesting raw hostnames, if applicable.
+By default, the library will connect to a public Certstream server instance hosted by Calidog, but you can specify a custom instance instead.
+
+To get started, import the library into your solution with either the `NuGet Package Manager` or the `dotnet` CLI.
 ```rust
 dotnet add package Certstream
 ```
@@ -19,14 +22,16 @@ using Certstream;
 
 Need more examples? Under the `Example` directory you can find a working demo project that implements this library.
 
-## Features
-- Built for **.NET 6** and **.NET 7**
+## Properties
+- Built for **.NET 8**, **.NET 7** and **.NET 6**
 - Fully **async**
 - Extensive **XML documentation**
-- Connect to the Certstream server and receive certificates in real time
+
+## Features
+- Connect to a Certstream server and receive certificates in real time
 - Parse and process over 200 issued certificates per second
 - Automatically reconnect when connection is lost
-- Updates exposed through events
+- Updates are exposed through events
 
 ## References
 - https://certstream.calidog.io/
@@ -68,19 +73,4 @@ Google Trust Services LLC issued a SSL certificate for coisearlamitkea.tk
 DigiCert Inc issued a SSL certificate for burstableflexrunnerserver637915813880232072.postgres.database.azure.com
 Amazon issued a SSL certificate for *.ds-2016.env.polar.com
 Let's Encrypt issued a SSL certificate for *.daniels-fotoexzesse.de
-Amazon issued a SSL certificate for alt.canary.s3.us-west-2.vpce.amazonaws.com
-Amazon issued a SSL certificate for app.simplementeeeuu.com
-Entrust, Inc. issued a SSL certificate for srm-ui-bat.sddc-35-85-252-30.vmwarevmc.com
-Cloudflare, Inc. issued a SSL certificate for *.butlaticho.tk
-Actalis S.p.A. issued a SSL certificate for *.sanguedolcecostruzioni.it
-cPanel, Inc. issued a SSL certificate for upclosebolivia.blogcreator.pl
-DigiCert Inc issued a SSL certificate for fq26-viber.getmewin.com
-cPanel, Inc. issued a SSL certificate for thegoldensandresort.com
-Amazon issued a SSL certificate for ax91.bridge.setu.co
-Cloudflare, Inc. issued a SSL certificate for *.hhdsn.top
-Cloudflare, Inc. issued a SSL certificate for *.v0f.org
-Amazon issued a SSL certificate for *.canary0341a7c6a260.gim1a1.c3.kafka.eu-west-3.amazonaws.com
-DigiCert Inc issued a SSL certificate for e1xl-viber.getmewin.com
-Let's Encrypt issued a SSL certificate for *.desyth.autocode.gg
-Google Trust Services LLC issued a SSL certificate for fcfycpuxph.sub1.ccm-breakit.certsbridge.com
 ```

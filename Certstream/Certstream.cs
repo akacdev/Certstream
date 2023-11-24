@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net.WebSockets;
 using System.Text;
@@ -11,7 +10,7 @@ using Timer = System.Timers.Timer;
 namespace Certstream
 {
     /// <summary>
-    /// The primary class for connecting to the Certstream server. 
+    /// The primary class for connecting to a Certstream server. 
     /// </summary>
     public class CertstreamClient
     {
@@ -31,25 +30,24 @@ namespace Certstream
         /// The hostname to connect to.
         /// </summary>
         public readonly string Hostname;
+
         /// <summary>
         /// The current amount of consecutive reconnection fails.
         /// </summary>
         private int Retries = 0;
         /// <summary>
-        /// Maps connection types to connection URIs.
+        /// The calculated connection Uri.
         /// </summary>
-        private readonly Dictionary<ConnectionType, Uri> ConnectionUriMap = new();
+        private readonly Uri ConnectionUri;
         /// <summary>
         /// The connection type to use in this instance.
         /// </summary>
         private readonly ConnectionType ConnectionType;
 
         private ClientWebSocket WebSocket;
-        private CancellationTokenSource Source;
+        private CancellationTokenSource CancellationSource;
         private Timer Pinger;
         private bool Running;
-        
-        private readonly ArraySegment<byte> PingBytes = new(Encoding.UTF8.GetBytes("ping"));
 
         private EventHandler<LeafCertificate> FullHandler;
         /// <summary>
@@ -96,13 +94,18 @@ namespace Certstream
         /// <summary>
         /// Create a new instance of the Certstream client.
         /// </summary>
+        /// <param name="connectionType">The type of connection to use in this instance.</param>
         /// <param name="hostname">The Certstream server hostname to connect to. Use this if you want to connect to your own instance.</param>
         /// <param name="maxRetries">The maximum limit of consecutive reconnection fails until an exception is thrown.<para>Set to a negative value for no limit.</para></param>
         /// <param name="pingInterval">The interval in milliseconds when a ping message is sent into the WebSocket conversation.</param>
         /// <param name="reconnectionDelay">The delay to wait before attempting to reconnect.</param>
-        /// <param name="connectionType">The type of connection to use in this instance.</param>
         /// <exception cref="ArgumentException"></exception>
-        public CertstreamClient(ConnectionType connectionType = Constants.ConnectionType, string hostname = Constants.Hostname, int maxRetries = Constants.MaxRetries, int pingInterval = Constants.PingInterval, int reconnectionDelay = Constants.ReconnectionDelay)
+        public CertstreamClient(
+            ConnectionType connectionType = Constants.ConnectionType,
+            string hostname = Constants.Hostname,
+            int maxRetries = Constants.MaxRetries,
+            int pingInterval = Constants.PingInterval,
+            int reconnectionDelay = Constants.ReconnectionDelay)
         {
             ConnectionType = connectionType;
             Hostname = hostname;
@@ -110,12 +113,19 @@ namespace Certstream
             PingInterval = pingInterval;
             ReconnectionDelay = reconnectionDelay;
 
-            bool success1 = Uri.TryCreate($"wss://{hostname}/", UriKind.Absolute, out Uri uri1);
-            bool success2 = Uri.TryCreate($"wss://{hostname}/domains-only", UriKind.Absolute, out Uri uri2);
-            if (!success1 || !success2) throw new ArgumentException("Invalid hostname provided.", nameof(hostname));
+            string path = connectionType switch
+            {
+                ConnectionType.Full => "/",
+                ConnectionType.DomainsOnly => "/domains-only",
+                _ => throw new NotImplementedException()
+            };
 
-            ConnectionUriMap.Add(ConnectionType.Full, uri1);
-            ConnectionUriMap.Add(ConnectionType.DomainsOnly, uri2);
+            string rawUrl = string.Concat("wss://", hostname, path);
+            
+            bool success = Uri.TryCreate(rawUrl, UriKind.Absolute, out Uri uri);
+            if (!success) throw new ArgumentException("Invalid hostname provided.", nameof(hostname));
+
+            ConnectionUri = uri;
         }
 
         /// <summary>
@@ -131,7 +141,7 @@ namespace Certstream
                 Interval = PingInterval
             };
 
-            Pinger.Elapsed += async (o, e) => await Ping();
+            Pinger.Elapsed += async (sender, args) => await Ping();
             Pinger.Start();
 
             await Task.CompletedTask;
@@ -145,7 +155,7 @@ namespace Certstream
             Running = false;
             Pinger.Stop();
 
-            await WebSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "User demands a WebSocket closure.", Source.Token);
+            await WebSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "User demands a WebSocket closure.", CancellationSource.Token);
         }
 
         /// <summary>
@@ -156,24 +166,22 @@ namespace Certstream
             if (!Running) return;
 
             Retries++;
-            Source = new();
+            CancellationSource = new();
             WebSocket = new();
             WebSocket.Options.SetRequestHeader("User-Agent", Constants.UserAgent);
 
             try
             {
-                Uri uri = ConnectionUriMap[ConnectionType];
-
-                await WebSocket.ConnectAsync(uri, Source.Token);
+                await WebSocket.ConnectAsync(ConnectionUri, CancellationSource.Token);
                 Retries = 0;
 
-                Debug.WriteLine($"WebSocket connected to {uri}");
+                Debug.WriteLine($"WebSocket connected to {ConnectionUri}");
             }
             catch (Exception ex)
             {
                 Debug.WriteLine($"Failed to connect to WebSocket: {ex.Message}");
 
-                if (MaxRetries >= 0 && Retries >= MaxRetries) throw new($"Failed to connect to Certstream {Retries} times.");
+                if (MaxRetries >= 0 && Retries >= MaxRetries) throw new CertstreamException($"Failed to connect to Certstream after {Retries} retries.");
 
                 await Task.Delay(ReconnectionDelay);
                 Connect();
@@ -182,16 +190,16 @@ namespace Certstream
 
             while (WebSocket.State == WebSocketState.Open)
             {
-                var receiveBuffer = new byte[16384];
+                byte[] receiveBuffer = new byte[Constants.BufferSize];
 
-                var offset = 0;
+                int offset = 0;
                 while (true)
                 {
                     try
                     {
                         ArraySegment<byte> bytesReceived = new(receiveBuffer, offset, receiveBuffer.Length);
 
-                        WebSocketReceiveResult result = await WebSocket.ReceiveAsync(bytesReceived, Source.Token);
+                        WebSocketReceiveResult result = await WebSocket.ReceiveAsync(bytesReceived, CancellationSource.Token);
                         offset += result.Count;
 
                         if (result.EndOfMessage) break;
@@ -202,7 +210,7 @@ namespace Certstream
                 if (offset != 0) OnMessage(this, Encoding.UTF8.GetString(receiveBuffer, 0, offset));
             }
 
-            Debug.WriteLine($"Connection lost: {WebSocket.CloseStatus}{(WebSocket.CloseStatusDescription is null ? "" : $" => {WebSocket.CloseStatusDescription}")}");
+            Debug.WriteLine(string.Concat($"Connection lost: {WebSocket.CloseStatus}", WebSocket.CloseStatusDescription is null ? "" : $" => {WebSocket.CloseStatusDescription}"));
             await Task.Delay(ReconnectionDelay);
 
             Connect();
@@ -218,7 +226,7 @@ namespace Certstream
 
             try
             {
-                await WebSocket.SendAsync(PingBytes, WebSocketMessageType.Text, true, Source.Token);
+                await WebSocket.SendAsync(Constants.PingBytes, WebSocketMessageType.Text, true, CancellationSource.Token);
                 Debug.WriteLine("Pinged WebSocket connection.");
             }
             catch { };
@@ -228,37 +236,43 @@ namespace Certstream
         /// Called whenever a WebSocket message is received.
         /// </summary>
         /// <param name="sender"></param>
-        /// <param name="msg"></param>
-        public void OnMessage(object sender, string msg)
+        /// <param name="message"></param>
+        private void OnMessage(object sender, string message)
         {
-            if (ConnectionType == ConnectionType.Full)
+            switch (ConnectionType)
             {
-                CertificateMessage certMessage;
+                case ConnectionType.Full:
+                    {
+                        CertificateMessage certMessage;
 
-                try
-                {
-                    certMessage = JsonSerializer.Deserialize<CertificateMessage>(msg);
-                }
-                catch { return; };
+                        try
+                        {
+                            certMessage = JsonSerializer.Deserialize<CertificateMessage>(message);
+                        }
+                        catch { return; };
 
-                if (certMessage.MessageType != "certificate_update") return;
+                        if (certMessage.MessageType != Constants.TargetMessageType) return;
 
-                FullHandler.Invoke(sender, certMessage.Data.Leaf);
+                        FullHandler.Invoke(sender, certMessage.Data.Leaf);
+
+                        break;
+                    }
+                case ConnectionType.DomainsOnly:
+                    {
+                        DomainsOnlyMessage domainsOnlyMessage;
+
+                        try
+                        {
+                            domainsOnlyMessage = JsonSerializer.Deserialize<DomainsOnlyMessage>(message);
+                        }
+                        catch { return; };
+
+                        foreach (string hostname in domainsOnlyMessage.Hostnames)
+                            DomainsOnlyHandler.Invoke(sender, hostname);
+
+                        break;
+                    }
             }
-            else if (ConnectionType == ConnectionType.DomainsOnly)
-            {
-                DomainsOnlyMessage domainsOnlyMessage;
-
-                try
-                {
-                    domainsOnlyMessage = JsonSerializer.Deserialize<DomainsOnlyMessage>(msg);
-                }
-                catch { return; };
-
-                foreach (string hostname in domainsOnlyMessage.Hostnames)
-                    DomainsOnlyHandler.Invoke(sender, hostname);
-            }
-            else throw new NotImplementedException();
         }
     }
 }
