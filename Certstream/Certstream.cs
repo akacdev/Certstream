@@ -191,15 +191,23 @@ namespace Certstream
             while (WebSocket.State == WebSocketState.Open)
             {
                 byte[] receiveBuffer = new byte[Constants.BufferSize];
-
                 int offset = 0;
+
                 while (true)
                 {
                     try
                     {
-                        ArraySegment<byte> bytesReceived = new(receiveBuffer, offset, receiveBuffer.Length);
+                        int remainingBufferSpace = receiveBuffer.Length - offset;
+
+                        if (remainingBufferSpace <= 0)
+                        {
+                            throw new InvalidOperationException("Buffer overflow: The receive buffer is full.");
+                        }
+
+                        ArraySegment<byte> bytesReceived = new(receiveBuffer, offset, remainingBufferSpace);
 
                         WebSocketReceiveResult result = await WebSocket.ReceiveAsync(bytesReceived, CancellationSource.Token);
+
                         offset += result.Count;
 
                         if (result.EndOfMessage) break;
