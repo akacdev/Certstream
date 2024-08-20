@@ -41,7 +41,7 @@ namespace Certstream
     public struct MessageData
     {
         [JsonPropertyName("cert_index")]
-        public int CertIndex { get; set; }
+        public long CertIndex { get; set; }
 
         [JsonPropertyName("cert_link")]
         public string CertLink { get; set; }
