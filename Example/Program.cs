@@ -1,4 +1,5 @@
 ﻿using Certstream;
+using Certstream.Models;
 using System;
 
 namespace Example
