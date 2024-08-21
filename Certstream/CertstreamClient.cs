@@ -160,11 +160,13 @@ namespace Certstream
         {
             if (!_cancellationTokenSource?.IsCancellationRequested ?? false)
             {
-                return Task.FromResult(true);
+                return Task.FromResult(false);
             }
 
+            _cancellationTokenSource?.Dispose();
+
             _cancellationTokenSource = new();
-            _ = Task.Run(async () => await MessageProcessorAsync(), cancellationToken);
+            _ = Task.Run(async () => await MessageProcessorAsync(_cancellationTokenSource.Token), cancellationToken);
 
             return Task.FromResult(true);
         }
@@ -199,7 +201,7 @@ namespace Certstream
         /// <summary>
         /// The main method that connects to the WebSocket and listens for new messages.
         /// </summary>
-        private async Task MessageProcessorAsync()
+        private async Task MessageProcessorAsync(CancellationToken cancellationToken)
         {
             this._logger.LogInformation($"{nameof(MessageProcessorAsync)} - Start");
 
@@ -210,7 +212,7 @@ namespace Certstream
 
             try
             {
-                while (!_cancellationTokenSource.IsCancellationRequested)
+                while (!cancellationToken.IsCancellationRequested)
                 {
                     if (_webSocket.State == WebSocketState.Aborted)
                     {
@@ -235,7 +237,7 @@ namespace Certstream
 
                         try
                         {
-                            await _webSocket.ConnectAsync(_connectionUri, _cancellationTokenSource.Token);
+                            await _webSocket.ConnectAsync(_connectionUri, cancellationToken);
                             _retries = 0;
                             continue;
                         }
@@ -260,7 +262,7 @@ namespace Certstream
 
                             ArraySegment<byte> bytesReceived = new(receiveBuffer, offset, remainingBufferSpace);
 
-                            WebSocketReceiveResult result = await _webSocket.ReceiveAsync(bytesReceived, _cancellationTokenSource.Token);
+                            WebSocketReceiveResult result = await _webSocket.ReceiveAsync(bytesReceived, cancellationToken);
 
                             offset += result.Count;
 
