@@ -2,23 +2,16 @@
 using Certstream.Models;
 using System;
 
-namespace Example
+
+var certstreamClient = new CertstreamClient(ConnectionType.Full);
+await certstreamClient.StartAsync();
+
+certstreamClient.CertificateIssued += (sender, cert) =>
 {
-    public static class Program
+    foreach (string domain in cert.AllDomains)
     {
-        public static readonly CertstreamClient Client = new(ConnectionType.Full);
-
-        public static void Main()
-        {
-            Client.CertificateIssued += (sender, cert) =>
-            {
-                foreach (string domain in cert.AllDomains)
-                {
-                    Console.WriteLine($"{cert.Issuer.O ?? cert.Issuer.CN} issued a SSL certificate for {domain}");
-                }
-            };
-
-            Console.ReadKey();
-        }
+        Console.WriteLine($"{cert.Issuer.O ?? cert.Issuer.CN} issued a SSL certificate for {domain}");
     }
-}
+};
+
+Console.ReadKey();

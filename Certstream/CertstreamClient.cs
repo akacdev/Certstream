@@ -62,8 +62,8 @@ namespace Certstream
         private Timer _pinger;
         private bool _running;
 
-        private EventHandler<LeafCertificate> FullHandler;
-        private EventHandler<string> DomainsOnlyHandler;
+        private EventHandler<LeafCertificate> _fullHandler;
+        private EventHandler<string> _domainsOnlyHandler;
 
         /// <summary>
         /// Fired whenever a new SSL certificate is issued and received from the WebSocket connection.
@@ -73,15 +73,16 @@ namespace Certstream
         {
             add
             {
-                if (_connectionType != ConnectionType.Full) throw new("Only available in connection type: Full.");
+                if (_connectionType != ConnectionType.Full)
+                {
+                    throw new("Only available in connection type: Full.");
+                }
 
-                FullHandler += value;
-                if (FullHandler.GetInvocationList().Length == 1) StartAsync();
+                _fullHandler += value;
             }
             remove
             {
-                FullHandler -= value;
-                if (FullHandler is null || FullHandler.GetInvocationList().Length == 0) StopAsync();
+                _fullHandler -= value;
             }
         }
 
@@ -93,15 +94,16 @@ namespace Certstream
         {
             add
             {
-                if (_connectionType != ConnectionType.DomainsOnly) throw new("Only available in connection type: Domains-Only.");
+                if (_connectionType != ConnectionType.DomainsOnly)
+                {
+                    throw new("Only available in connection type: Domains-Only.");
+                }
 
-                DomainsOnlyHandler += value;
-                if (DomainsOnlyHandler.GetInvocationList().Length == 1) StartAsync();
+                _domainsOnlyHandler += value;
             }
             remove
             {
-                DomainsOnlyHandler -= value;
-                if (DomainsOnlyHandler is null || DomainsOnlyHandler.GetInvocationList().Length == 0) StopAsync();
+                _domainsOnlyHandler -= value;
             }
         }
 
@@ -159,44 +161,44 @@ namespace Certstream
         }
 
         /// <summary>
-        /// Forcibly start collecting certificates.
+        /// Start receive certificate data
         /// </summary>
-        public async Task StartAsync()
+        public Task<bool> StartAsync(CancellationToken cancellationToken = default)
         {
-            _running = true;
-            ConnectAsync();
-
-            _pinger = new()
+            if (!_cancellationTokenSource?.IsCancellationRequested ?? false)
             {
-                Interval = _pingInterval
-            };
+                return Task.FromResult(true);
+            }
 
-            _pinger.Elapsed += async (sender, args) => await PingAsync();
-            _pinger.Start();
+            _cancellationTokenSource = new();
+            _ = Task.Run(async () => await MessageProcessorAsync(), cancellationToken);
 
-            await Task.CompletedTask;
+            return Task.FromResult(true);
         }
 
         /// <summary>
-        /// Forcibly stop collecting certificates.
+        /// Stop receive certificate data
         /// </summary>
         public async void StopAsync(CancellationToken cancellationToken = default)
         {
-            _running = false;
-            _pinger.Stop();
+            _cancellationTokenSource?.Cancel();
+            _cancellationTokenSource.Dispose();
 
-            await _webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "User demands a WebSocket closure.", cancellationToken);
+            //_running = false;
+            //_pinger.Stop();
+
+            //await _webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "User demands a WebSocket closure.", cancellationToken);
         }
 
         /// <summary>
         /// The main method that connects to the WebSocket and listens for new messages.
         /// </summary>
-        public async Task ConnectAsync()
+        private async Task MessageProcessorAsync()
         {
             if (!_running) return;
 
             _retries++;
-            _cancellationTokenSource = new();
+            //_cancellationTokenSource = new();
             _webSocket = new();
             _webSocket.Options.SetRequestHeader("User-Agent", Constants.UserAgent);
 
@@ -214,7 +216,7 @@ namespace Certstream
                 if (_maxRetries >= 0 && _retries >= _maxRetries) throw new CertstreamException($"Failed to connect to Certstream after {_retries} retries.");
 
                 await Task.Delay(_reconnectionDelay);
-                ConnectAsync();
+                MessageProcessorAsync();
                 return;
             }
 
@@ -253,7 +255,7 @@ namespace Certstream
                     }
                     catch (Exception exception)
                     {
-                        this._logger.LogError(exception, $"{nameof(ConnectAsync)} - Process Message");
+                        this._logger.LogError(exception, $"{nameof(MessageProcessorAsync)} - Process Message");
                     }
                 }
             }
@@ -261,14 +263,14 @@ namespace Certstream
             Debug.WriteLine(string.Concat($"Connection lost: {_webSocket.CloseStatus}", _webSocket.CloseStatusDescription is null ? "" : $" => {_webSocket.CloseStatusDescription}"));
             await Task.Delay(_reconnectionDelay);
 
-            ConnectAsync();
+            MessageProcessorAsync();
         }
 
         /// <summary>
         /// The method that sends a <c>ping</c> message into the WebSocket to prevent it from closing.
         /// </summary>
         /// <returns></returns>
-        public async Task PingAsync(CancellationToken cancellationToken =  default)
+        private async Task PingAsync(CancellationToken cancellationToken =  default)
         {
             if (_webSocket.State != WebSocketState.Open)
             {
@@ -314,7 +316,7 @@ namespace Certstream
                             return;
                         }
 
-                        FullHandler.Invoke(sender, certMessage.Data.Leaf);
+                        _fullHandler.Invoke(sender, certMessage.Data.Leaf);
 
                         break;
                     }
@@ -334,7 +336,7 @@ namespace Certstream
 
                         foreach (string hostname in domainsOnlyMessage.Hostnames)
                         {
-                            DomainsOnlyHandler.Invoke(sender, hostname);
+                            _domainsOnlyHandler.Invoke(sender, hostname);
                         }
 
                         break;
