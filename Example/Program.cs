@@ -1,9 +1,17 @@
 ﻿using Certstream;
 using Certstream.Models;
+using Microsoft.Extensions.Logging;
 using System;
 
+using var loggerFactory = LoggerFactory.Create(builder =>
+{
+    builder.SetMinimumLevel(LogLevel.Debug);
+    builder.AddConsole();
+});
 
-var certstreamClient = new CertstreamClient(ConnectionType.Full);
+var logger = loggerFactory.CreateLogger<CertstreamClient>();
+
+var certstreamClient = new CertstreamClient(ConnectionType.Full, logger: logger);
 await certstreamClient.StartAsync();
 
 certstreamClient.CertificateIssued += (sender, cert) =>
@@ -13,5 +21,9 @@ certstreamClient.CertificateIssued += (sender, cert) =>
         Console.WriteLine($"{cert.Issuer.O ?? cert.Issuer.CN} issued a SSL certificate for {domain}");
     }
 };
+
+Console.ReadKey();
+
+await certstreamClient.StopAsync();
 
 Console.ReadKey();

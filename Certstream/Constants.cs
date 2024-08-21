@@ -41,10 +41,10 @@ namespace Certstream
         /// </summary>
         public const int MaxRetries = 10;
 
-        /// <summary>
-        /// How often should the WebSocket connection be pinged, in <b>milliseconds.</b>
-        /// </summary>
-        public const int PingInterval = 5000;
+        ///// <summary>
+        ///// How often should the WebSocket connection be pinged, in <b>milliseconds.</b>
+        ///// </summary>
+        //public const int PingInterval = 5000;
 
         /// <summary>
         /// The delay between reconnecting a closed WebSocket connection, in <b>milliseconds.</b>
