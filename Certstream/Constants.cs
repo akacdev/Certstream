@@ -9,7 +9,7 @@ namespace Certstream
         /// <summary>
         /// The <c>User-Agent</c> header value to send when connecting.
         /// </summary>
-        public const string UserAgent = "C# Certstream Client - https://github.com/actually-akac/Certstream";
+        public const string UserAgent = "C# Certstream Client - https://github.com/akacdev/Certstream";
 
         /// <summary>
         /// The buffer size for holding incoming messages. - <b>Default: 16 KiB</b>
@@ -41,10 +41,10 @@ namespace Certstream
         /// </summary>
         public const int MaxRetries = 10;
 
-        ///// <summary>
-        ///// How often should the WebSocket connection be pinged, in <b>milliseconds.</b>
-        ///// </summary>
-        //public const int PingInterval = 5000;
+        /// <summary>
+        /// How often should the WebSocket connection be pinged, in <b>milliseconds.</b>
+        /// </summary>
+        public const int PingInterval = 5000;
 
         /// <summary>
         /// The delay between reconnecting a closed WebSocket connection, in <b>milliseconds.</b>

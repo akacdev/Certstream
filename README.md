@@ -1,11 +1,11 @@
 ﻿# Certstream
 
 <div align="center">
-  <img width="256" height="256" src="https://raw.githubusercontent.com/actually-akac/Certstream/master/Certstream/icon.png">
+  <img width="256" height="256" src="https://raw.githubusercontent.com/akacdev/Certstream/master/Certstream/icon.png">
 </div>
 
 <div align="center">
-  A C# library for processing newly issued SSL certificates in real time using the Certstream API. 
+  C# library for real-time SSL certificate processing using the Calidog Certstream API.
 </div>
 
 ## Usage

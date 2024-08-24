@@ -1,8 +1,8 @@
 # Certstream
 
-![](https://raw.githubusercontent.com/actually-akac/Certstream/master/Certstream/icon.png)
+![](https://raw.githubusercontent.com/akacdev/Certstream/master/Certstream/icon.png)
 
-A C# library for processing newly issued SSL certificates in real time using the Certstream API.
+C# library for real-time SSL certificate processing using the Calidog Certstream API.
 
 ## Usage
 This library provides an easy interface for interacting with the Certstream API, allowing you to process newly issued SSL/TLS certificates in real time.

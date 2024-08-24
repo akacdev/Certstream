@@ -7,7 +7,7 @@
     <Product>Certstream</Product>
     <Authors>akac</Authors>
     <Company>akac</Company>
-    <Description>A C# library for processing newly issued SSL certificates in real time using the Certstream API.</Description>
+    <Description>C# library for real-time SSL certificate processing using the Calidog Certstream API.</Description>
     <PackageTags>certstream; certificate-transparency; transparency; x509; security; ssl; tls; certificate; letsencrypt; cloudflare; digicert; verisign</PackageTags>
     <PackageIcon>icon.png</PackageIcon>
     <PackageReadmeFile>NuGet.md</PackageReadmeFile>
@@ -18,8 +18,8 @@
     <FileVersion>1.2.2</FileVersion>
 
     <!--Github-->
-    <PackageProjectUrl>https://github.com/actually-akac/Certstream</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/actually-akac/Certstream</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/akacdev/Certstream</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/akacdev/Certstream</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
 

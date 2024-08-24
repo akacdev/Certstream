@@ -2,28 +2,36 @@
 using Certstream.Models;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Threading.Tasks;
 
-using var loggerFactory = LoggerFactory.Create(builder =>
+namespace Example
 {
-    builder.SetMinimumLevel(LogLevel.Debug);
-    builder.AddConsole();
-});
-
-var logger = loggerFactory.CreateLogger<CertstreamClient>();
-
-var certstreamClient = new CertstreamClient(ConnectionType.Full, logger: logger);
-await certstreamClient.StartAsync();
-
-certstreamClient.CertificateIssued += (sender, cert) =>
-{
-    foreach (string domain in cert.AllDomains)
+    public class Example
     {
-        Console.WriteLine($"{cert.Issuer.O ?? cert.Issuer.CN} issued a SSL certificate for {domain}");
+        public static async Task Main()
+        {
+            using ILoggerFactory loggerFactory = LoggerFactory.Create(builder =>
+            {
+                builder.SetMinimumLevel(LogLevel.Debug);
+                builder.AddConsole();
+            });
+
+            ILogger<CertstreamClient> logger = loggerFactory.CreateLogger<CertstreamClient>();
+
+            CertstreamClient client = new(ConnectionType.Full, logger: logger);
+            await client.StartAsync();
+
+            client.CertificateIssued += (sender, cert) =>
+            {
+                foreach (string domain in cert.AllDomains)
+                    Console.WriteLine($"{cert.Issuer.O ?? cert.Issuer.CN} issued a SSL certificate for {domain}");
+            };
+
+            Console.ReadKey(true);
+
+            await client.StopAsync();
+
+            Console.ReadKey(true);
+        }
     }
-};
-
-Console.ReadKey();
-
-await certstreamClient.StopAsync();
-
-Console.ReadKey();
+}
