@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System;
+using System.Text.Json.Serialization;
 
 namespace Certstream.Models
 {
@@ -16,11 +17,13 @@ namespace Certstream.Models
         [JsonPropertyName("issuer")]
         public Issuer Issuer { get; set; }
 
+        [JsonConverter(typeof(UnixDateTimeOffsetConverter))]
         [JsonPropertyName("not_after")]
-        public int NotAfter { get; set; }
+        public DateTimeOffset NotAfter { get; set; }
 
+        [JsonConverter(typeof(UnixDateTimeOffsetConverter))]
         [JsonPropertyName("not_before")]
-        public int NotBefore { get; set; }
+        public DateTimeOffset NotBefore { get; set; }
 
         [JsonPropertyName("serial_number")]
         public string SerialNumber { get; set; }

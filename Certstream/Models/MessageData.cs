@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System;
+using System.Text.Json.Serialization;
 
 namespace Certstream.Models
 {
@@ -13,8 +14,9 @@ namespace Certstream.Models
         [JsonPropertyName("leaf_cert")]
         public LeafCertificate Leaf { get; set; }
 
+        [JsonConverter(typeof(UnixDateTimeOffsetConverter))]
         [JsonPropertyName("seen")]
-        public double Seen { get; set; }
+        public DateTimeOffset Seen { get; set; }
 
         [JsonPropertyName("source")]
         public Source Source { get; set; }
